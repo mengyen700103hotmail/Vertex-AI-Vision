@@ -12,10 +12,10 @@
         body {
             font-family: 'Noto Sans TC', sans-serif;
             -webkit-tap-highlight-color: transparent;
-            background-color: #f1f5f9; /* 背景深一點，突顯中間的卡片感 */
+            background-color: #f1f5f9;
         }
 
-        /* 在電腦版增加一點卡片陰影與背景對比 */
+        /* 電腦版卡片化設計 */
         @media (min-width: 768px) {
             .app-container {
                 background-color: #ffffff;
@@ -25,17 +25,6 @@
                 border-radius: 2rem;
                 min-height: calc(100vh - 4rem);
             }
-        }
-
-        .shimmer {
-            background: linear-gradient(90deg, #eff6ff 25%, #dbeafe 50%, #eff6ff 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite linear;
-        }
-
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
         }
 
         .custom-scroll::-webkit-scrollbar {
@@ -49,6 +38,11 @@
         .audience-tag {
             @apply px-3 py-1 rounded-full text-xs font-bold mr-2 mb-2 inline-block;
         }
+
+        /* 切換開關動畫 */
+        .toggle-btn {
+            transition: all 0.3s ease;
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -59,7 +53,7 @@
             <div class="flex justify-between items-center">
                 <div>
                     <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Vision Scout AI</h1>
-                    <p class="text-sm text-slate-500">專業試用者分析工具</p>
+                    <p class="text-sm text-slate-500 font-medium">雙模式分析專家</p>
                 </div>
                 <button onclick="toggleSettings()" class="p-2 bg-slate-50 border border-slate-100 rounded-full shadow-sm active:bg-slate-200 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -70,7 +64,7 @@
             </div>
         </header>
 
-        <!-- API 金鑰設定彈窗 (優化電腦版寬度) -->
+        <!-- API 金鑰設定彈窗 -->
         <div id="settingsPanel" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-6 backdrop-blur-sm">
             <div class="bg-white rounded-3xl w-full max-w-sm p-8 shadow-2xl transform transition-all">
                 <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center mb-6">
@@ -78,12 +72,12 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                     </svg>
                 </div>
-                <h2 class="text-xl font-bold mb-2 text-slate-900">API 金鑰管理</h2>
-                <p class="text-sm text-slate-500 mb-6 leading-relaxed">金鑰將僅儲存於您目前的瀏覽器 (LocalStorage)，安全且私密。</p>
+                <h2 class="text-xl font-bold mb-2 text-slate-900">API 金鑰設定</h2>
+                <p class="text-sm text-slate-500 mb-6 leading-relaxed">金鑰將僅儲存於您目前的瀏覽器 (LocalStorage)，請安心使用。</p>
                 <input type="password" id="apiKeyInput" placeholder="請貼上 Gemini API Key" 
                        class="w-full bg-slate-50 border border-slate-200 rounded-2xl px-4 py-4 mb-6 focus:ring-2 focus:ring-blue-500 outline-none text-lg transition-shadow">
                 <div class="flex flex-col gap-3">
-                    <button onclick="saveApiKey()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-lg shadow-blue-200">儲存並開始使用</button>
+                    <button onclick="saveApiKey()" class="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold hover:bg-blue-700 active:scale-95 transition-all shadow-lg shadow-blue-200">儲存金鑰</button>
                     <button onclick="toggleSettings()" class="w-full bg-white text-slate-500 py-3 rounded-2xl font-medium hover:bg-slate-50 transition-colors">稍後再說</button>
                 </div>
             </div>
@@ -100,8 +94,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                 </div>
-                <p class="font-bold text-slate-700">拍攝或上傳商品照片</p>
-                <p class="text-xs text-slate-400 mt-1">引擎：gemini-flash-latest</p>
+                <p class="font-bold text-slate-700">拍攝商品以開始分析</p>
+                <p class="text-xs text-slate-400 mt-1">一般分析 | 嚴厲防雷 | 引擎：gemini-flash-latest</p>
                 <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="processImage(event)">
             </div>
 
@@ -109,10 +103,10 @@
             <div id="statusArea" class="hidden space-y-4">
                 <div class="relative rounded-3xl overflow-hidden shadow-md bg-white">
                     <img id="imagePreview" class="w-full h-48 object-cover" />
-                    <div id="analyzingOverlay" class="absolute inset-0 bg-slate-900/40 flex items-center justify-center backdrop-blur-[2px]">
+                    <div id="analyzingOverlay" class="absolute inset-0 bg-slate-900/60 flex items-center justify-center backdrop-blur-[2px]">
                         <div class="flex flex-col items-center">
-                            <div class="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-                            <span class="text-white text-sm font-medium mt-3" id="statusMessage">AI 正在深度辨識...</span>
+                            <div class="w-12 h-12 border-4 border-white/20 border-t-blue-500 rounded-full animate-spin"></div>
+                            <span class="text-white text-sm font-medium mt-3" id="statusMessage">AI 正在深度解析商品...</span>
                         </div>
                     </div>
                 </div>
@@ -131,9 +125,21 @@
             <!-- 分析結果呈現區 -->
             <div id="resultCard" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div id="reportContainer" class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-                    <div class="bg-slate-900 p-6 text-white">
+                    
+                    <!-- 模式切換器 -->
+                    <div class="bg-slate-50 border-b border-slate-100 p-2 flex gap-2">
+                        <button id="btnNormal" onclick="switchMode('normal')" class="toggle-btn flex-1 py-2 rounded-xl text-sm font-bold bg-white text-slate-800 shadow-sm border border-slate-200">
+                            😊 一般分析
+                        </button>
+                        <button id="btnStrict" onclick="switchMode('strict')" class="toggle-btn flex-1 py-2 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100">
+                            🛡️ 嚴厲防雷
+                        </button>
+                    </div>
+
+                    <!-- 標題區 (動態顏色) -->
+                    <div id="headerBg" class="bg-slate-800 p-6 text-white transition-colors duration-500">
                         <div id="resTitle" class="text-xl font-bold">商品名稱載入中...</div>
-                        <div id="resStars" class="text-yellow-400 mt-1 text-sm tracking-widest">⭐⭐⭐⭐⭐</div>
+                        <div id="resStars" class="text-yellow-400 mt-1 text-sm tracking-widest font-mono">⭐⭐⭐⭐⭐</div>
                     </div>
 
                     <div class="p-6 space-y-6 custom-scroll">
@@ -141,16 +147,16 @@
                         <section>
                             <div class="flex justify-between items-center mb-2">
                                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                    <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 適用對象
+                                    <span id="targetDot" class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 適用對象
                                 </h3>
                             </div>
                             <div id="resTarget" class="flex flex-wrap"></div>
-                            <div id="resAudienceReason" class="mt-2 text-xs text-slate-500 bg-slate-50 p-3 rounded-xl border border-slate-100 italic"></div>
+                            <div id="resAudienceReason" class="mt-2 text-xs text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200 italic"></div>
                         </section>
 
                         <section>
                             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 翻譯與說明
+                                <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span> 翻譯與功能說明
                             </h3>
                             <div id="resTranslate" class="text-slate-700 leading-relaxed text-sm whitespace-pre-wrap"></div>
                         </section>
@@ -162,7 +168,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
-                                    商品優點
+                                    <span id="prosTitle">商品優點</span>
                                 </h4>
                                 <ul id="resPros" class="text-xs text-emerald-800 space-y-1 list-disc pl-4"></ul>
                             </div>
@@ -171,7 +177,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                                     </svg>
-                                    商品缺點
+                                    <span id="consTitle">商品缺點</span>
                                 </h4>
                                 <ul id="resCons" class="text-xs text-rose-800 space-y-1 list-disc pl-4"></ul>
                             </div>
@@ -180,14 +186,14 @@
                         <!-- 價格與心得區塊 -->
                         <section>
                             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                <span class="w-1.5 h-1.5 bg-blue-500 rounded-full"></span> 市場價格 (含台幣換算) 與心得
+                                <span class="w-1.5 h-1.5 bg-slate-400 rounded-full"></span> 市場價格 (含台幣) & 網路心得
                             </h3>
                             <div id="resMarket" class="text-slate-700 text-sm bg-slate-50 p-4 rounded-2xl border border-slate-100 whitespace-pre-wrap"></div>
                         </section>
 
                         <section class="pt-4 border-t border-slate-100 text-center">
-                            <div class="text-xs text-slate-400 mb-1 tracking-tighter">專家購買建議</div>
-                            <div id="resVerdict" class="font-bold text-blue-600"></div>
+                            <div class="text-xs text-slate-400 mb-1 tracking-tighter">專家最終評判</div>
+                            <div id="resVerdict" class="font-bold text-lg"></div>
                         </section>
                     </div>
                 </div>
@@ -198,7 +204,7 @@
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        保存分析報告
+                        保存檢測報告
                     </button>
                     <button onclick="location.reload()" class="p-4 bg-white border border-slate-200 text-slate-400 rounded-2xl active:scale-95 transition shadow-sm hover:text-slate-600">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -215,6 +221,8 @@
     <script>
         const MODEL_NAME = "gemini-flash-latest";
         let base64Image = "";
+        let analysisResult = null; // 儲存完整分析資料
+        let currentMode = 'normal'; // 當前模式: 'normal' | 'strict'
 
         document.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem('app_gemini_key');
@@ -279,27 +287,42 @@
         }
 
         async function callAIIdentification(apiKey) {
-            updateProgress(15, "Vision Scout 正在連結引擎...");
+            updateProgress(15, "Vision Scout 連結引擎中...");
             
-            const prompt = `你是一位專業商品分析專家。請分析圖片內容，判斷該商品適合哪些族群使用，並詳細說明理由。
-            請回傳 JSON 格式：
+            // 要求 AI 回傳雙版本分析
+            const prompt = `你是一位精通商品的資深分析師。請分析圖片中的商品，並同時提供【兩種不同風格】的分析結果。
+
+            1. 【normal】一般模式：以客觀、中立、鼓勵的角度分析，適合一般大眾參考。
+            2. 【strict】嚴厲模式：以極度挑剔、防雷、杜絕智商稅的角度分析，只說實話，不留情面。
+
+            請回傳以下 JSON 格式：
             {
                 "title": "繁體中文商品名稱",
-                "stars": "1-5 數字",
-                "audience": ["兒童", "成人", "男生", "女生"], 
-                "audience_reason": "詳細說明判定理由",
-                "translation": "詳細翻譯圖片文字並說明功能",
-                "pros": ["優點1", "優點2"],
-                "cons": ["缺點1", "缺點2"],
-                "market_info": "市場價格範圍（請務必提供原幣值價格，並同時加註折合台幣 TWD 的預計價格範圍）與網路心得摘要",
-                "verdict": "一句話購買建議"
+                "translation": "詳細翻譯與功能說明",
+                "market_info": "市場價格(含台幣)與客觀行情",
+                "normal": {
+                    "stars": "1-5",
+                    "audience": ["族群1", "族群2"],
+                    "audience_reason": "客觀理由",
+                    "pros": ["優點1", "優點2"],
+                    "cons": ["缺點1"],
+                    "verdict": "溫和的購買建議"
+                },
+                "strict": {
+                    "stars": "1-5 (通常較低)",
+                    "audience": ["族群1", "智商稅受害者"],
+                    "audience_reason": "犀利理由",
+                    "pros": ["真的無法反駁的優點"],
+                    "cons": ["致命缺點1", "缺點2", "缺點3"],
+                    "verdict": "毒舌評論 (例如: 這是智商稅)"
+                }
             }
-            請勿包含任何 markdown 標記。`;
+            請勿包含 markdown 標記。`;
 
             try {
                 const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${apiKey}`;
                 
-                updateProgress(45, "正在掃描商品與計算價格...");
+                updateProgress(45, "雙重人格分析中...");
 
                 const response = await fetch(url, {
                     method: 'POST',
@@ -320,13 +343,19 @@
                     throw new Error(`API 錯誤: ${data.error.message}`);
                 }
 
-                updateProgress(85, "正在彙整專業測評報告...");
+                updateProgress(90, "生成雙模式報告...");
 
                 const textResponse = data.candidates[0].content.parts[0].text;
                 const jsonStr = textResponse.replace(/```json/g, '').replace(/```/g, '').trim();
-                const result = JSON.parse(jsonStr);
+                analysisResult = JSON.parse(jsonStr);
 
-                renderResults(result);
+                // 預設先顯示一般模式
+                switchMode('normal');
+                
+                setTimeout(() => {
+                    document.getElementById('statusArea').classList.add('hidden');
+                    document.getElementById('resultCard').classList.remove('hidden');
+                }, 500);
 
             } catch (err) {
                 console.error(err);
@@ -335,11 +364,44 @@
             }
         }
 
-        function renderResults(data) {
-            document.getElementById('resTitle').innerText = data.title;
-            document.getElementById('resStars').innerText = "⭐".repeat(parseInt(data.stars) || 5);
-            document.getElementById('resTranslate').innerText = data.translation;
-            
+        // 切換模式邏輯
+        function switchMode(mode) {
+            currentMode = mode;
+            if (!analysisResult) return;
+
+            const data = analysisResult[mode];
+            const common = analysisResult;
+
+            // 切換按鈕樣式
+            const btnNormal = document.getElementById('btnNormal');
+            const btnStrict = document.getElementById('btnStrict');
+
+            if (mode === 'normal') {
+                btnNormal.className = "toggle-btn flex-1 py-2 rounded-xl text-sm font-bold bg-white text-slate-800 shadow-sm border border-slate-200 ring-2 ring-blue-100";
+                btnStrict.className = "toggle-btn flex-1 py-2 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-50";
+                document.getElementById('prosTitle').innerText = "商品優點";
+                document.getElementById('consTitle').innerText = "商品缺點";
+            } else {
+                btnNormal.className = "toggle-btn flex-1 py-2 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-50";
+                btnStrict.className = "toggle-btn flex-1 py-2 rounded-xl text-sm font-bold bg-white text-rose-600 shadow-sm border border-slate-200 ring-2 ring-rose-100";
+                document.getElementById('prosTitle').innerText = "僅存的優點";
+                document.getElementById('consTitle').innerText = "不可忽視的缺點";
+            }
+
+            // 更新共用資訊
+            document.getElementById('resTitle').innerText = common.title;
+            document.getElementById('resTranslate').innerText = common.translation;
+            document.getElementById('resMarket').innerText = common.market_info;
+
+            // 更新差異資訊
+            const stars = parseInt(data.stars) || 1;
+            document.getElementById('resStars').innerText = "⭐".repeat(stars);
+            document.getElementById('resVerdict').innerText = data.verdict;
+            document.getElementById('resAudienceReason').innerText = mode === 'normal' 
+                ? "💡 適用理由：" + data.audience_reason
+                : "🔥 防雷觀點：" + data.audience_reason;
+
+            // 渲染標籤
             const targetContainer = document.getElementById('resTarget');
             targetContainer.innerHTML = "";
             if (data.audience && Array.isArray(data.audience)) {
@@ -351,36 +413,67 @@
                 });
             }
 
-            document.getElementById('resAudienceReason').innerText = "💡 判定理由：" + (data.audience_reason || "根據產品性質分析。");
+            // 渲染優缺點
+            renderList('resPros', data.pros, mode === 'strict' ? "此商品無明顯優點" : "");
+            renderList('resCons', data.cons, "");
 
-            document.getElementById('resPros').innerHTML = data.pros.map(p => `<li>${p}</li>`).join('');
-            document.getElementById('resCons').innerHTML = data.cons.map(c => `<li>${c}</li>`).join('');
-            document.getElementById('resMarket').innerText = data.market_info;
-            document.getElementById('resVerdict').innerText = data.verdict;
+            // 更新標題與結論顏色
+            updateColors(mode, stars);
+        }
 
-            setTimeout(() => {
-                document.getElementById('statusArea').classList.add('hidden');
-                document.getElementById('resultCard').classList.remove('hidden');
-            }, 800);
+        function renderList(elementId, items, emptyMsg) {
+            const el = document.getElementById(elementId);
+            if (!items || items.length === 0 || (items.length === 1 && items[0] === "")) {
+                el.innerHTML = emptyMsg ? `<li class='text-slate-400 italic'>${emptyMsg}</li>` : "";
+            } else {
+                el.innerHTML = items.map(p => `<li>${p}</li>`).join('');
+            }
+        }
+
+        function updateColors(mode, stars) {
+            const header = document.getElementById('headerBg');
+            const verdict = document.getElementById('resVerdict');
+            const targetDot = document.getElementById('targetDot');
+
+            if (mode === 'normal') {
+                // 一般模式：藍色系
+                header.className = "bg-slate-800 p-6 text-white transition-colors duration-500";
+                verdict.className = "font-bold text-lg text-slate-800";
+                targetDot.className = "w-1.5 h-1.5 bg-blue-500 rounded-full";
+            } else {
+                // 嚴厲模式：根據分數變色
+                targetDot.className = "w-1.5 h-1.5 bg-rose-500 rounded-full";
+                
+                if (stars <= 2) {
+                    header.className = "bg-red-700 p-6 text-white transition-colors duration-500";
+                    verdict.className = "font-bold text-lg text-red-600";
+                } else if (stars >= 4) {
+                    header.className = "bg-green-700 p-6 text-white transition-colors duration-500";
+                    verdict.className = "font-bold text-lg text-green-600";
+                } else {
+                    header.className = "bg-slate-700 p-6 text-white transition-colors duration-500";
+                    verdict.className = "font-bold text-lg text-slate-700";
+                }
+            }
         }
 
         function getTagColor(tag) {
+            if (tag.includes('智商稅') || tag.includes('受害者')) return 'bg-red-100 text-red-700';
             if (tag.includes('兒童')) return 'bg-orange-100 text-orange-700';
             if (tag.includes('女生')) return 'bg-pink-100 text-pink-700';
             if (tag.includes('男生')) return 'bg-blue-100 text-blue-700';
-            if (tag.includes('成人')) return 'bg-indigo-100 text-indigo-700';
             return 'bg-slate-100 text-slate-700';
         }
 
         function saveAsImage() {
             const target = document.getElementById('reportContainer');
-            showToast("正在生成 Vision Scout 高清報告...");
+            showToast("正在生成檢測報告...");
             html2canvas(target, { backgroundColor: "#f1f5f9", scale: 2 }).then(canvas => {
                 const link = document.createElement('a');
-                link.download = `VisionScout_Report_${Date.now()}.png`;
+                link.download = `VisionScout_${currentMode}_${Date.now()}.png`;
                 link.href = canvas.toDataURL("image/png");
                 link.click();
-                showToast("報告已成功儲存");
+                showToast("報告已儲存");
             });
         }
     </script>
